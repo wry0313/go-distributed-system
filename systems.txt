@@ -1,0 +1,6 @@
+three main distributed systems
+1. hub & spoke
+2. peer to peer
+3. message queue
+
+
