@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+  "sync"
 )
 
 func RegisterService(r Registration) error {
@@ -46,4 +47,25 @@ func ShutdownService(url string) error {
 		)
 	}
 	return nil
+}
+
+type providers struct {
+  services map[ServiceName][]string
+  mutex *sync.RWMutex
+}
+
+func (p *providers) Update(pat patch) {
+  p.mutex.Lock()
+  defer p.mutex.Unlock()
+
+  for _, patchEntry := range pat.Added {
+    if _, ok := p.services[patchEntry.Name]; !ok {
+      p.services[patchEntry.Name] = make([]string, 0)
+    }
+  }
+}
+
+var prov = providers {
+  services: make(map[ServiceName][]string),
+  mutex: &sync.RWMutex{},
 }
