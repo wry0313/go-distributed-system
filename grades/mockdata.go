@@ -1,9 +1,6 @@
 package grades
 
-import "fmt"
-
 func init() {
-	fmt.Println("init grades")
 	students = []Student{
 		{
 			ID:        1,
