@@ -38,7 +38,7 @@ services:
       context: .
       dockerfile: Dockerfile.portal
     ports:
-      - "6000:6000"
+      - "8080:8080"
     stdin_open: true
     tty: true
     depends_on:

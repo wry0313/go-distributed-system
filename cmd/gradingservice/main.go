@@ -10,7 +10,7 @@ import (
 	stlog "log"
 )
 func main() {
-	host, port := "localhost", "5001"
+	host, port := "gradingservice", "5001"
 	serviceAddress := fmt.Sprintf("http://%s:%s", host, port)
 
 	r := registry.Registration {

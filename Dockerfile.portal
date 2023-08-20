@@ -17,7 +17,8 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 
 COPY --from=builder /app/portal .
+COPY --from=builder /app/portal/ .
 
-EXPOSE 6000
+EXPOSE 8080
 
 CMD ["./portal"]

@@ -80,7 +80,6 @@ func (studentsHandler) renderStudents(w http.ResponseWriter, r *http.Request) {
 }
 
 func (studentsHandler) renderStudent(w http.ResponseWriter, r *http.Request, id int) {
-	fmt.Println("renderStudent", id)
 	var err error
 	defer func() {
 		if err != nil {
@@ -110,7 +109,6 @@ func (studentsHandler) renderStudent(w http.ResponseWriter, r *http.Request, id 
 }
 
 func (studentsHandler) renderGrades(w http.ResponseWriter, r *http.Request, id int) {
-	fmt.Println("renderGrades", id)
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -131,7 +129,6 @@ func (studentsHandler) renderGrades(w http.ResponseWriter, r *http.Request, id i
 		Type:  grades.GradeType(gradeType),
 		Score: float32(score),
 	}
-	fmt.Printf("grade: %+v\n", g)
 	data, err := json.Marshal(g)
 	if err != nil {
 		log.Println("Failed to convert grade to JSON: ", g, err)
@@ -142,13 +139,11 @@ func (studentsHandler) renderGrades(w http.ResponseWriter, r *http.Request, id i
 		log.Println("Failed to retrieve instance of Grading Service", err)
 		return
 	}
-	fmt.Println("serviceURL for rendering grade: ", serviceURL)
 	res, err := http.Post(fmt.Sprintf("%v/students/%v/grades", serviceURL, id), "application/json", bytes.NewBuffer(data))
 	if err != nil {
 		log.Println("Failed to save grade to Grading Service", err)
 		return
 	}
-	fmt.Println("res for rendering grade: ", res)
 	if res.StatusCode != http.StatusCreated {
 		log.Println("Failed to save grade to Grading Service. Status: ", res.StatusCode)
 		return

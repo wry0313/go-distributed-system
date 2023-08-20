@@ -32,7 +32,6 @@ func (sh studentHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-		fmt.Println("getting id: ", id)
 		sh.getOne(w, r, id)
 	case 4:
 		id, err := strconv.Atoi(pathSegments[2])
@@ -40,7 +39,6 @@ func (sh studentHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-		fmt.Println("adding grade to id: ", id)
 		sh.addGrade(w, r, id)
 	default:
 		w.WriteHeader(http.StatusNotFound)
@@ -58,7 +56,6 @@ func (sh studentHandler) getOne(w http.ResponseWriter, r *http.Request, id int) 
 		return
 	}
 
-	fmt.Println("student: ", student)
 	data, err := sh.toJSON(student)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -102,8 +99,6 @@ func (sh studentHandler) addGrade(w http.ResponseWriter, r *http.Request, id int
 		return
 	}
 	student.Grades = append(student.Grades, g) 
-	fmt.Printf("added grade: %+v\n", g)
-	fmt.Println(student.Grades)
 	w.WriteHeader(http.StatusCreated)
 	data, err := sh.toJSON(g)
 	if err != nil {
