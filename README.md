@@ -36,6 +36,7 @@ ctx, err := service.Start(
 	r,
 	log.RegisterHandlers,
 )
+```
 Afterward, create the corresponding Dockerfile and docker-compose.yml files for the microservice, using formats similar to the ones presented here:
 ``` Dockerfile
 FROM golang:1.21 AS builder
