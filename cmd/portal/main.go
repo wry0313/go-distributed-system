@@ -15,7 +15,7 @@ func main() {
 	if err != nil {
 		stlog.Fatal(err)
 	}
-	host, port := "localhost", "6969"
+	host, port := "localhost", "6000"
 	serviceAddress := fmt.Sprintf("http://%s:%s", host, port)
 
 	r := registry.Registration{

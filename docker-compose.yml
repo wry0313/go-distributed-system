@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  registryservice:
+    build:
+      context: .
+      dockerfile: Dockerfile.registryservice
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    tty: true
+
+  logservice:
+    build:
+      context: .
+      dockerfile: Dockerfile.logservice
+    ports:
+      - "4000:4000"
+    stdin_open: true
+    tty: true
+    depends_on:
+      - registryservice
+
+  gradingservice:
+    build:
+      context: .
+      dockerfile: Dockerfile.gradingservice
+    ports:
+      - "5001:5001"
+    stdin_open: true
+    tty: true
+    depends_on:
+      - registryservice
+      - logservice
+
+  portal:
+    build:
+      context: .
+      dockerfile: Dockerfile.portal
+    ports:
+      - "6000:6000"
+    stdin_open: true
+    tty: true
+    depends_on:
+      - registryservice
+      - logservice
+      - gradingservice
