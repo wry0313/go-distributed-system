@@ -1,13 +1,13 @@
 package registry
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"sync"
-  "bytes"
 )
 
 const (
@@ -24,50 +24,89 @@ func (r *registry) add(reg Registration) error {
 	r.mutex.Lock()
 	r.registrations = append(r.registrations, reg)
 	r.mutex.Unlock()
-  err := r.sendRequiredServices(reg)
-	return err 
+	err := r.sendRequiredServices(reg)
+	r.notify(patch{
+		Added: []patchEntry{
+			{
+				Name: reg.ServiceName,
+				URL:  reg.ServiceURL,
+			},
+		},
+	})
+	return err
 }
 
-func (r registry) sendRequiredServices (reg Registration) error {
-  r.mutex.RLock()
-  defer r.mutex.RUnlock()
+func (r registry) notify(fullPatch patch) {
+	r.mutex.RLock()
+	defer r.mutex.RUnlock()
 
-  var p patch
-  for _, serviceReg := range r.registrations {
-    for _, reqService := range reg.RequiredServices {
-      if serviceReg.ServiceName == reqService {
-        p.Added = append(p.Added, patchEntry{
-          Name: serviceReg.ServiceName,
-          URL: serviceReg.ServiceURL,
-        })
-      }
-    }
-  }
-  err := r.sendPatch(p, reg.ServiceUpdateUrl)
-  if err != nil {
-    return err
-  }
-  return err 
+	for _, reg := range r.registrations {
+		go func(reg Registration) {
+			for _, reqService := range reg.RequiredServices {
+				p := patch{Added: []patchEntry{}, Removed: []patchEntry{}}
+				sendUpdate := false
+				for _, added := range fullPatch.Added {
+					if added.Name == reqService {
+						p.Added = append(p.Added, added)
+						sendUpdate = true
+					}
+				}
+				for _, removed := range fullPatch.Removed {
+					if removed.Name == reqService {
+						p.Removed = append(p.Removed, removed)
+						sendUpdate = true
+					}
+				}
+				if sendUpdate {
+					err := r.sendPatch(p, reg.ServiceUpdateUrl)
+					if err != nil {
+						log.Println(err)
+					}
+				}
+			}
+		}(reg)
+	}
+}
+
+func (r registry) sendRequiredServices(reg Registration) error {
+	r.mutex.RLock()
+	defer r.mutex.RUnlock()
+
+	var p patch
+	for _, serviceReg := range r.registrations {
+		for _, reqService := range reg.RequiredServices {
+			if serviceReg.ServiceName == reqService {
+				p.Added = append(p.Added, patchEntry{
+					Name: serviceReg.ServiceName,
+					URL:  serviceReg.ServiceURL,
+				})
+			}
+		}
+	}
+	err := r.sendPatch(p, reg.ServiceUpdateUrl)
+	if err != nil {
+		return err
+	}
+	return err
 }
 
 func (r registry) sendPatch(p patch, url string) error {
-  // marshal converts a go object into json formatted slice of bytes
-  d, err := json.Marshal(p)
-  if err != nil {
-    return err
-  }
-  // bytes.NewBuffer converts a slice of bytes into a buffer that implements the io.Reader interface
+	// marshal converts a go object into json formatted slice of bytes
+	d, err := json.Marshal(p)
+	if err != nil {
+		return err
+	}
+	// bytes.NewBuffer converts a slice of bytes into a buffer that implements the io.Reader interface
 
-  // a buffer is a temp storage area that serves to accommodate diff in rates of data flow or timing between interacting system or processes
+	// a buffer is a temp storage area that serves to accommodate diff in rates of data flow or timing between interacting system or processes
 
-
-  // 1. holds data while network read the data at its own pace. 
-  // 2. bytes.buffer implements the io.Reader and io.Writer interface which provides a std way to read from and write to various data stream
-  _, err = http.Post(url, "application/json", bytes.NewBuffer(d))
-  if err != nil {
-    return err
-  }
-  return nil
+	// 1. holds data while network read the data at its own pace.
+	// 2. bytes.buffer implements the io.Reader and io.Writer interface which provides a std way to read from and write to various data stream
+	_, err = http.Post(url, "application/json", bytes.NewBuffer(d))
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *registry) remove(url string) error {
