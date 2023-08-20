@@ -20,7 +20,7 @@ Use the API endpoints provided by the `package service` to create your own micro
 
 For example, to register a service with the `registry`:
 ``` golang
-host, port := "serviceName", "4000"
+host, port := "yourservicename", "4000"
 serviceAddr := fmt.Sprintf("http://%s:%s", host, port)
 r := registry.Registration{
 	ServiceName:      registry.LogService,
@@ -38,6 +38,7 @@ ctx, err := service.Start(
 )
 ```
 Afterward, create the corresponding Dockerfile and docker-compose.yml files for the microservice, using formats similar to the ones presented here:
+### Dockerfile.yourservicename
 ``` Dockerfile
 FROM golang:1.21 AS builder
 
@@ -63,7 +64,7 @@ EXPOSE portnumber
 
 CMD ["./yourservicename"]
 ```
-
+### docker-compose.yml
 ``` yml
 
   yourservicename:
