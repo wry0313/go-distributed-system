@@ -12,9 +12,18 @@ import (
 )
 
 func RegisterService(r Registration) error {
+
+	heartbeatURL, err := url.Parse(r.HeartbeatURL)
+	if err != nil {
+		return fmt.Errorf("Error parsing heartbeat URL: %v", err)
+	}
+	http.HandleFunc(heartbeatURL.Path, func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
 	serviceUpdateURL, err := url.Parse(r.ServiceUpdateUrl)
 	if err != nil {
-		return fmt.Errorf("Error parsing service update URL: %v", err) 
+		return fmt.Errorf("Error parsing service update URL: %v", err)
 	}
 	if serviceUpdateURL.Scheme != "http" {
 		return fmt.Errorf("Service update URL must have scheme http\n")
@@ -42,7 +51,8 @@ func RegisterService(r Registration) error {
 	return nil
 }
 
-type serviceUpdateHandler struct {}
+type serviceUpdateHandler struct{}
+
 func (suh serviceUpdateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)

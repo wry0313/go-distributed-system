@@ -26,6 +26,7 @@ func main() {
 			registry.GradingService,
 		},
 		ServiceUpdateUrl: serviceAddress + "/services",
+		HeartbeatURL: serviceAddress + "/heartbeat",
 	}
 
 	ctx, err := service.Start(
