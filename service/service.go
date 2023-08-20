@@ -10,14 +10,16 @@ import (
 
 func Start(
 	ctx context.Context,
-	host, port string,
+	host,
+	port string,
 	reg registry.Registration,
 	registerHandlerFunc func(),
 ) (context.Context, error) {
 	registerHandlerFunc()
 	ctx = startService(ctx, reg.ServiceName, host, port)
 	err := registry.RegisterService(reg)
-	if err != nil {return ctx, err
+	if err != nil {
+		return ctx, err
 	}
 
 	return ctx, nil
@@ -34,10 +36,10 @@ func startService(
 	srv.Addr = ":" + port
 
 	go func() {
-		log.Println(srv.ListenAndServe());
-    err := registry.ShutdownService(fmt.Sprintf("http://%s:%s", host, port))
+		log.Println(srv.ListenAndServe())
+		err := registry.ShutdownService(fmt.Sprintf("http://%s:%s", host, port))
 		if err != nil {
-      log.Println(err)
+			log.Println(err)
 		}
 		cancel()
 	}()

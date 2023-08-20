@@ -14,7 +14,10 @@ import (
 func RegisterService(r Registration) error {
 	serviceUpdateURL, err := url.Parse(r.ServiceUpdateUrl)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error parsing service update URL: %v", err) 
+	}
+	if serviceUpdateURL.Scheme != "http" {
+		return fmt.Errorf("Service update URL must have scheme http\n")
 	}
 	http.Handle(serviceUpdateURL.Path, &serviceUpdateHandler{})
 
