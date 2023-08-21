@@ -5,14 +5,6 @@ Go v1.21 or higher
 
 Docker
 ## Getting Started
-Clone this repository:
-``` bash
-https://github.com/wry0313/go-distributed-systems.git
-```
-Navigate to the cloned directory:
-``` bash
-cd go-distributed-systems
-```
 Start the micro services with Docker
 ``` bash
 docker-compose up
